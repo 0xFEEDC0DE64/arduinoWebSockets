@@ -22,8 +22,11 @@
  *
  */
 
-#include "WebSockets.h"
 #include "WebSocketsClient.h"
+
+#include <string>
+
+#include "WebSockets.h"
 
 WebSocketsClient::WebSocketsClient() {
     _cbEvent             = NULL;
@@ -90,7 +93,7 @@ void WebSocketsClient::begin(const char * host, uint16_t port, const char * url,
     DEBUG_WEBSOCKETS("[WS-Client] Websocket Version: " WEBSOCKETS_VERSION "\n");
 }
 
-void WebSocketsClient::begin(String host, uint16_t port, String url, String protocol) {
+void WebSocketsClient::begin(std::string host, uint16_t port, std::string url, std::string protocol) {
     begin(host.c_str(), port, url.c_str(), protocol.c_str());
 }
 
@@ -107,7 +110,7 @@ void WebSocketsClient::beginSSL(const char * host, uint16_t port, const char * u
     _CA_cert      = NULL;
 }
 
-void WebSocketsClient::beginSSL(String host, uint16_t port, String url, String fingerprint, String protocol) {
+void WebSocketsClient::beginSSL(std::string host, uint16_t port, std::string url, std::string fingerprint, std::string protocol) {
     beginSSL(host.c_str(), port, url.c_str(), fingerprint.c_str(), protocol.c_str());
 }
 
@@ -153,7 +156,7 @@ void WebSocketsClient::beginSocketIO(const char * host, uint16_t port, const cha
     _client.isSocketIO = true;
 }
 
-void WebSocketsClient::beginSocketIO(String host, uint16_t port, String url, String protocol) {
+void WebSocketsClient::beginSocketIO(std::string host, uint16_t port, std::string url, std::string protocol) {
     beginSocketIO(host.c_str(), port, url.c_str(), protocol.c_str());
 }
 
@@ -165,7 +168,7 @@ void WebSocketsClient::beginSocketIOSSL(const char * host, uint16_t port, const 
     _fingerprint       = SSL_FINGERPRINT_NULL;
 }
 
-void WebSocketsClient::beginSocketIOSSL(String host, uint16_t port, String url, String protocol) {
+void WebSocketsClient::beginSocketIOSSL(std::string host, uint16_t port, std::string url, std::string protocol) {
     beginSocketIOSSL(host.c_str(), port, url.c_str(), protocol.c_str());
 }
 
@@ -320,7 +323,7 @@ bool WebSocketsClient::sendTXT(const char * payload, size_t length) {
     return sendTXT((uint8_t *)payload, length);
 }
 
-bool WebSocketsClient::sendTXT(String & payload) {
+bool WebSocketsClient::sendTXT(std::string & payload) {
     return sendTXT((uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -365,7 +368,7 @@ bool WebSocketsClient::sendPing(uint8_t * payload, size_t length) {
     return false;
 }
 
-bool WebSocketsClient::sendPing(String & payload) {
+bool WebSocketsClient::sendPing(std::string & payload) {
     return sendPing((uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -386,7 +389,7 @@ void WebSocketsClient::disconnect(void) {
  */
 void WebSocketsClient::setAuthorization(const char * user, const char * password) {
     if(user && password) {
-        String auth = user;
+        std::string auth = user;
         auth += ":";
         auth += password;
         _client.base64Authorization = base64_encode((uint8_t *)auth.c_str(), auth.length());
@@ -565,13 +568,13 @@ void WebSocketsClient::handleClientData(void) {
     if(len > 0) {
         switch(_client.status) {
             case WSC_HEADER: {
-                String headerLine = _client.tcp->readStringUntil('\n');
+                std::string headerLine = _client.tcp->readStringUntil('\n');
                 handleHeader(&_client, &headerLine);
             } break;
             case WSC_BODY: {
                 char buf[256] = { 0 };
                 _client.tcp->readBytes(&buf[0], std::min((size_t)len, sizeof(buf)));
-                String bodyLine = buf;
+                std::string bodyLine = buf;
                 handleHeader(&_client, &bodyLine);
             } break;
             case WSC_CONNECTED:
@@ -607,9 +610,9 @@ void WebSocketsClient::sendHeader(WSclient_t * client) {
     unsigned long start = micros();
 #endif
 
-    String handshake;
+    std::string handshake;
     bool ws_header = true;
-    String url     = client->cUrl;
+    std::string url     = client->cUrl;
 
     if(client->isSocketIO) {
         if(client->cSessionId.length() == 0) {
@@ -682,13 +685,13 @@ void WebSocketsClient::sendHeader(WSclient_t * client) {
  * handle the WebSocket header reading
  * @param client WSclient_t *  ptr to the client struct
  */
-void WebSocketsClient::handleHeader(WSclient_t * client, String * headerLine) {
+void WebSocketsClient::handleHeader(WSclient_t * client, std::string * headerLine) {
     headerLine->trim();    // remove \r
 
     // this code handels the http body for Socket.IO V3 requests
     if(headerLine->length() > 0 && client->isSocketIO && client->status == WSC_BODY && client->cSessionId.length() == 0) {
         DEBUG_WEBSOCKETS("[WS-Client][handleHeader] socket.io json: %s\n", headerLine->c_str());
-        String sid_begin = WEBSOCKETS_STRING("\"sid\":\"");
+        std::string sid_begin = WEBSOCKETS_STRING("\"sid\":\"");
         if(headerLine->indexOf(sid_begin) > -1) {
             int start          = headerLine->indexOf(sid_begin) + sid_begin.length();
             int end            = headerLine->indexOf('"', start);
@@ -708,8 +711,8 @@ void WebSocketsClient::handleHeader(WSclient_t * client, String * headerLine) {
             // "HTTP/1.1 101 Switching Protocols"
             client->cCode = headerLine->substring(9, headerLine->indexOf(' ', 9)).toInt();
         } else if(headerLine->indexOf(':') >= 0) {
-            String headerName  = headerLine->substring(0, headerLine->indexOf(':'));
-            String headerValue = headerLine->substring(headerLine->indexOf(':') + 1);
+            std::string headerName  = headerLine->substring(0, headerLine->indexOf(':'));
+            std::string headerValue = headerLine->substring(headerLine->indexOf(':') + 1);
 
             // remove space in the beginning  (RFC2616)
             if(headerValue[0] == ' ') {
@@ -800,7 +803,7 @@ void WebSocketsClient::handleHeader(WSclient_t * client, String * headerLine) {
                 ok = false;
             } else {
                 // generate Sec-WebSocket-Accept key for check
-                String sKey = acceptKey(client->cKey);
+                std::string sKey = acceptKey(client->cKey);
                 if(sKey != client->cAccept) {
                     DEBUG_WEBSOCKETS("[WS-Client][handleHeader] Sec-WebSocket-Accept is wrong\n");
                     ok = false;

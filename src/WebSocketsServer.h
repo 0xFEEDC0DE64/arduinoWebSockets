@@ -25,6 +25,8 @@
 #ifndef WEBSOCKETSSERVER_H_
 #define WEBSOCKETSSERVER_H_
 
+#include <string>
+
 #include "WebSockets.h"
 
 #ifndef WEBSOCKETS_SERVER_CLIENT_MAX
@@ -33,7 +35,7 @@
 
 class WebSocketsServerCore : protected WebSockets {
   public:
-    WebSocketsServerCore(const String & origin = "", const String & protocol = "arduino");
+    WebSocketsServerCore(const std::string & origin = "", const std::string & protocol = "arduino");
     virtual ~WebSocketsServerCore(void);
 
     void begin(void);
@@ -41,10 +43,10 @@ class WebSocketsServerCore : protected WebSockets {
 
 #ifdef __AVR__
     typedef void (*WebSocketServerEvent)(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
-    typedef bool (*WebSocketServerHttpHeaderValFunc)(String headerName, String headerValue);
+    typedef bool (*WebSocketServerHttpHeaderValFunc)(std::string headerName, std::string headerValue);
 #else
     typedef std::function<void(uint8_t num, WStype_t type, uint8_t * payload, size_t length)> WebSocketServerEvent;
-    typedef std::function<bool(String headerName, String headerValue)> WebSocketServerHttpHeaderValFunc;
+    typedef std::function<bool(std::string headerName, std::string headerValue)> WebSocketServerHttpHeaderValFunc;
 #endif
 
     void onEvent(WebSocketServerEvent cbEvent);
@@ -57,13 +59,13 @@ class WebSocketsServerCore : protected WebSockets {
     bool sendTXT(uint8_t num, const uint8_t * payload, size_t length = 0);
     bool sendTXT(uint8_t num, char * payload, size_t length = 0, bool headerToPayload = false);
     bool sendTXT(uint8_t num, const char * payload, size_t length = 0);
-    bool sendTXT(uint8_t num, String & payload);
+    bool sendTXT(uint8_t num, std::string & payload);
 
     bool broadcastTXT(uint8_t * payload, size_t length = 0, bool headerToPayload = false);
     bool broadcastTXT(const uint8_t * payload, size_t length = 0);
     bool broadcastTXT(char * payload, size_t length = 0, bool headerToPayload = false);
     bool broadcastTXT(const char * payload, size_t length = 0);
-    bool broadcastTXT(String & payload);
+    bool broadcastTXT(std::string & payload);
 
     bool sendBIN(uint8_t num, uint8_t * payload, size_t length, bool headerToPayload = false);
     bool sendBIN(uint8_t num, const uint8_t * payload, size_t length);
@@ -72,10 +74,10 @@ class WebSocketsServerCore : protected WebSockets {
     bool broadcastBIN(const uint8_t * payload, size_t length);
 
     bool sendPing(uint8_t num, uint8_t * payload = NULL, size_t length = 0);
-    bool sendPing(uint8_t num, String & payload);
+    bool sendPing(uint8_t num, std::string & payload);
 
     bool broadcastPing(uint8_t * payload = NULL, size_t length = 0);
-    bool broadcastPing(String & payload);
+    bool broadcastPing(std::string & payload);
 
     void disconnect(void);
     void disconnect(uint8_t num);
@@ -101,10 +103,10 @@ class WebSocketsServerCore : protected WebSockets {
     WSclient_t * newClient(WEBSOCKETS_NETWORK_CLASS * TCPclient);
 
   protected:
-    String _origin;
-    String _protocol;
-    String _base64Authorization;    ///< Base64 encoded Auth request
-    String * _mandatoryHttpHeaders;
+    std::string _origin;
+    std::string _protocol;
+    std::string _base64Authorization;    ///< Base64 encoded Auth request
+    std::string * _mandatoryHttpHeaders;
     size_t _mandatoryHttpHeaderCount;
 
     WSclient_t _clients[WEBSOCKETS_SERVER_CLIENT_MAX];
@@ -127,7 +129,7 @@ class WebSocketsServerCore : protected WebSockets {
     void handleClientData(void);
 #endif
 
-    void handleHeader(WSclient_t * client, String * headerLine);
+    void handleHeader(WSclient_t * client, std::string * headerLine);
 
     void handleHBPing(WSclient_t * client);    // send ping in specified intervals
 
@@ -190,7 +192,7 @@ class WebSocketsServerCore : protected WebSockets {
          * This mechanism can be used to enable custom authentication schemes e.g. test the value
          * of a session cookie to determine if a user is logged on / authenticated
          */
-    virtual bool execHttpHeaderValidation(String headerName, String headerValue) {
+    virtual bool execHttpHeaderValidation(std::string headerName, std::string headerValue) {
         if(_httpHeaderValidationFunc) {
             //return the value of the custom http header validation function
             return _httpHeaderValidationFunc(headerName, headerValue);
@@ -211,14 +213,14 @@ class WebSocketsServerCore : protected WebSockets {
   private:
     /*
          * returns an indicator whether the given named header exists in the configured _mandatoryHttpHeaders collection
-         * @param headerName String ///< the name of the header being checked
+         * @param headerName std::string ///< the name of the header being checked
          */
-    bool hasMandatoryHeader(String headerName);
+    bool hasMandatoryHeader(std::string headerName);
 };
 
 class WebSocketsServer : public WebSocketsServerCore {
   public:
-    WebSocketsServer(uint16_t port, const String & origin = "", const String & protocol = "arduino");
+    WebSocketsServer(uint16_t port, const std::string & origin = "", const std::string & protocol = "arduino");
     virtual ~WebSocketsServer(void);
 
     void begin(void);

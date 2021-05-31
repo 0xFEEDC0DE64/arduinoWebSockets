@@ -25,6 +25,8 @@
 #ifndef WEBSOCKETSCLIENT_H_
 #define WEBSOCKETSCLIENT_H_
 
+#include <string>
+
 #include "WebSockets.h"
 
 class WebSocketsClient : protected WebSockets {
@@ -39,13 +41,13 @@ class WebSocketsClient : protected WebSockets {
     virtual ~WebSocketsClient(void);
 
     void begin(const char * host, uint16_t port, const char * url = "/", const char * protocol = "arduino");
-    void begin(String host, uint16_t port, String url = "/", String protocol = "arduino");
+    void begin(std::string host, uint16_t port, std::string url = "/", std::string protocol = "arduino");
     void begin(IPAddress host, uint16_t port, const char * url = "/", const char * protocol = "arduino");
 
 #if defined(HAS_SSL)
 #ifdef SSL_AXTLS
     void beginSSL(const char * host, uint16_t port, const char * url = "/", const char * fingerprint = "", const char * protocol = "arduino");
-    void beginSSL(String host, uint16_t port, String url = "/", String fingerprint = "", String protocol = "arduino");
+    void beginSSL(std::string host, uint16_t port, std::string url = "/", std::string fingerprint = "", std::string protocol = "arduino");
 #else
     void beginSSL(const char * host, uint16_t port, const char * url = "/", const uint8_t * fingerprint = NULL, const char * protocol = "arduino");
     void beginSslWithCA(const char * host, uint16_t port, const char * url = "/", BearSSL::X509List * CA_cert = NULL, const char * protocol = "arduino");
@@ -56,11 +58,11 @@ class WebSocketsClient : protected WebSockets {
 #endif
 
     void beginSocketIO(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * protocol = "arduino");
-    void beginSocketIO(String host, uint16_t port, String url = "/socket.io/?EIO=3", String protocol = "arduino");
+    void beginSocketIO(std::string host, uint16_t port, std::string url = "/socket.io/?EIO=3", std::string protocol = "arduino");
 
 #if defined(HAS_SSL)
     void beginSocketIOSSL(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * protocol = "arduino");
-    void beginSocketIOSSL(String host, uint16_t port, String url = "/socket.io/?EIO=3", String protocol = "arduino");
+    void beginSocketIOSSL(std::string host, uint16_t port, std::string url = "/socket.io/?EIO=3", std::string protocol = "arduino");
 
     void beginSocketIOSSLWithCA(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * CA_cert = NULL, const char * protocol = "arduino");
 #if defined(SSL_BARESSL)
@@ -81,14 +83,14 @@ class WebSocketsClient : protected WebSockets {
     bool sendTXT(const uint8_t * payload, size_t length = 0);
     bool sendTXT(char * payload, size_t length = 0, bool headerToPayload = false);
     bool sendTXT(const char * payload, size_t length = 0);
-    bool sendTXT(String & payload);
+    bool sendTXT(std::string & payload);
     bool sendTXT(char payload);
 
     bool sendBIN(uint8_t * payload, size_t length, bool headerToPayload = false);
     bool sendBIN(const uint8_t * payload, size_t length);
 
     bool sendPing(uint8_t * payload = NULL, size_t length = 0);
-    bool sendPing(String & payload);
+    bool sendPing(std::string & payload);
 
     void disconnect(void);
 
@@ -105,12 +107,12 @@ class WebSocketsClient : protected WebSockets {
     bool isConnected(void);
 
   protected:
-    String _host;
+    std::string _host;
     uint16_t _port;
 
 #if defined(HAS_SSL)
 #ifdef SSL_AXTLS
-    String _fingerprint;
+    std::string _fingerprint;
     const char * _CA_cert;
 #define SSL_FINGERPRINT_IS_SET (_fingerprint.length())
 #define SSL_FINGERPRINT_NULL ""
@@ -142,7 +144,7 @@ class WebSocketsClient : protected WebSockets {
 #endif
 
     void sendHeader(WSclient_t * client);
-    void handleHeader(WSclient_t * client, String * headerLine);
+    void handleHeader(WSclient_t * client, std::string * headerLine);
 
     void connectedCb();
     void connectFailedCb();

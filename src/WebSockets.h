@@ -25,12 +25,14 @@
 #ifndef WEBSOCKETS_H_
 #define WEBSOCKETS_H_
 
+#include <string>
+
 #ifdef STM32_DEVICE
 #include <application.h>
 #define bit(b) (1UL << (b))    // Taken directly from Arduino.h
 #else
-#include <Arduino.h>
-#include <IPAddress.h>
+//#include <Arduino.h>
+//#include <IPAddress.h>
 #endif
 
 #ifdef ARDUINO_ARCH_AVR
@@ -186,8 +188,8 @@
 
 #elif(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP32)
 
-#include <WiFi.h>
-#include <WiFiClientSecure.h>
+//#include <WiFi.h>
+//#include <WiFiClientSecure.h>
 #define SSL_AXTLS
 #define WEBSOCKETS_NETWORK_CLASS WiFiClient
 #define WEBSOCKETS_NETWORK_SSL_CLASS WiFiClientSecure
@@ -284,28 +286,28 @@ typedef struct {
     WEBSOCKETS_NETWORK_SSL_CLASS * ssl;
 #endif
 
-    String cUrl;           ///< http url
+    std::string cUrl;           ///< http url
     uint16_t cCode = 0;    ///< http code
 
     bool cIsClient    = false;    ///< will be used for masking
     bool cIsUpgrade   = false;    ///< Connection == Upgrade
     bool cIsWebsocket = false;    ///< Upgrade == websocket
 
-    String cSessionId;        ///< client Set-Cookie (session id)
-    String cKey;              ///< client Sec-WebSocket-Key
-    String cAccept;           ///< client Sec-WebSocket-Accept
-    String cProtocol;         ///< client Sec-WebSocket-Protocol
-    String cExtensions;       ///< client Sec-WebSocket-Extensions
+    std::string cSessionId;        ///< client Set-Cookie (session id)
+    std::string cKey;              ///< client Sec-WebSocket-Key
+    std::string cAccept;           ///< client Sec-WebSocket-Accept
+    std::string cProtocol;         ///< client Sec-WebSocket-Protocol
+    std::string cExtensions;       ///< client Sec-WebSocket-Extensions
     uint16_t cVersion = 0;    ///< client Sec-WebSocket-Version
 
     uint8_t cWsRXsize = 0;                            ///< State of the RX
     uint8_t cWsHeader[WEBSOCKETS_MAX_HEADER_SIZE];    ///< RX WS Message buffer
     WSMessageHeader_t cWsHeaderDecode;
 
-    String base64Authorization;    ///< Base64 encoded Auth request
-    String plainAuthorization;     ///< Base64 encoded Auth request
+    std::string base64Authorization;    ///< Base64 encoded Auth request
+    std::string plainAuthorization;     ///< Base64 encoded Auth request
 
-    String extraHeaders;
+    std::string extraHeaders;
 
     bool cHttpHeadersValid = false;    ///< non-websocket http header validity indicator
     size_t cMandatoryHeadersCount;     ///< non-websocket mandatory http headers present count
@@ -318,7 +320,7 @@ typedef struct {
     uint8_t pongTimeoutCount       = 0;    // current pong timeout count
 
 #if(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP8266_ASYNC)
-    String cHttpLine;    ///< HTTP header lines
+    std::string cHttpLine;    ///< HTTP header lines
 #endif
 
 } WSclient_t;
@@ -350,8 +352,8 @@ class WebSockets {
     void handleWebsocketCb(WSclient_t * client);
     void handleWebsocketPayloadCb(WSclient_t * client, bool ok, uint8_t * payload);
 
-    String acceptKey(String & clientKey);
-    String base64_encode(uint8_t * data, size_t length);
+    std::string acceptKey(std::string & clientKey);
+    std::string base64_encode(uint8_t * data, size_t length);
 
     bool readCb(WSclient_t * client, uint8_t * out, size_t n, WSreadWaitCb cb);
     virtual size_t write(WSclient_t * client, uint8_t * out, size_t n);

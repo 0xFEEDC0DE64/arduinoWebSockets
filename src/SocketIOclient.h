@@ -8,6 +8,8 @@
 #ifndef SOCKETIOCLIENT_H_
 #define SOCKETIOCLIENT_H_
 
+#include <string>
+
 #include "WebSockets.h"
 
 #define EIO_HEARTBEAT_INTERVAL 20000
@@ -47,11 +49,11 @@ class SocketIOclient : protected WebSocketsClient {
     virtual ~SocketIOclient(void);
 
     void begin(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * protocol = "arduino");
-    void begin(String host, uint16_t port, String url = "/socket.io/?EIO=3", String protocol = "arduino");
+    void begin(std::string host, uint16_t port, std::string url = "/socket.io/?EIO=3", std::string protocol = "arduino");
 
 #ifdef HAS_SSL
     void beginSSL(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * protocol = "arduino");
-    void beginSSL(String host, uint16_t port, String url = "/socket.io/?EIO=3", String protocol = "arduino");
+    void beginSSL(std::string host, uint16_t port, std::string url = "/socket.io/?EIO=3", std::string protocol = "arduino");
 #ifndef SSL_AXTLS
     void beginSSLWithCA(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", const char * CA_cert = NULL, const char * protocol = "arduino");
     void beginSSLWithCA(const char * host, uint16_t port, const char * url = "/socket.io/?EIO=3", BearSSL::X509List * CA_cert = NULL, const char * protocol = "arduino");
@@ -67,13 +69,13 @@ class SocketIOclient : protected WebSocketsClient {
     bool sendEVENT(const uint8_t * payload, size_t length = 0);
     bool sendEVENT(char * payload, size_t length = 0, bool headerToPayload = false);
     bool sendEVENT(const char * payload, size_t length = 0);
-    bool sendEVENT(String & payload);
+    bool sendEVENT(std::string & payload);
 
     bool send(socketIOmessageType_t type, uint8_t * payload, size_t length = 0, bool headerToPayload = false);
     bool send(socketIOmessageType_t type, const uint8_t * payload, size_t length = 0);
     bool send(socketIOmessageType_t type, char * payload, size_t length = 0, bool headerToPayload = false);
     bool send(socketIOmessageType_t type, const char * payload, size_t length = 0);
-    bool send(socketIOmessageType_t type, String & payload);
+    bool send(socketIOmessageType_t type, std::string & payload);
 
     void loop(void);
 

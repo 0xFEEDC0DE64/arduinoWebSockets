@@ -5,9 +5,12 @@
  *      Author: links
  */
 
+#include "SocketIOclient.h"
+
+#include <string>
+
 #include "WebSockets.h"
 #include "WebSocketsClient.h"
-#include "SocketIOclient.h"
 
 SocketIOclient::SocketIOclient() {
 }
@@ -21,7 +24,7 @@ void SocketIOclient::begin(const char * host, uint16_t port, const char * url, c
     initClient();
 }
 
-void SocketIOclient::begin(String host, uint16_t port, String url, String protocol) {
+void SocketIOclient::begin(std::string host, uint16_t port, std::string url, std::string protocol) {
     WebSocketsClient::beginSocketIO(host, port, url, protocol);
     WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
     initClient();
@@ -33,7 +36,7 @@ void SocketIOclient::beginSSL(const char * host, uint16_t port, const char * url
     initClient();
 }
 
-void SocketIOclient::beginSSL(String host, uint16_t port, String url, String protocol) {
+void SocketIOclient::beginSSL(std::string host, uint16_t port, std::string url, std::string protocol) {
     WebSocketsClient::beginSocketIOSSL(host, port, url, protocol);
     WebSocketsClient::enableHeartbeat(60 * 1000, 90 * 1000, 5);
     initClient();
@@ -131,7 +134,7 @@ bool SocketIOclient::send(socketIOmessageType_t type, const char * payload, size
     return send(type, (uint8_t *)payload, length);
 }
 
-bool SocketIOclient::send(socketIOmessageType_t type, String & payload) {
+bool SocketIOclient::send(socketIOmessageType_t type, std::string & payload) {
     return send(type, (uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -159,7 +162,7 @@ bool SocketIOclient::sendEVENT(const char * payload, size_t length) {
     return sendEVENT((uint8_t *)payload, length);
 }
 
-bool SocketIOclient::sendEVENT(String & payload) {
+bool SocketIOclient::sendEVENT(std::string & payload) {
     return sendEVENT((uint8_t *)payload.c_str(), payload.length());
 }
 

@@ -25,6 +25,8 @@
 #ifndef __WEBSOCKETS4WEBSERVER_H
 #define __WEBSOCKETS4WEBSERVER_H
 
+#include <string>
+
 #include <WebSocketsServer.h>
 #include <ESP8266WebServer.h>
 
@@ -32,15 +34,15 @@
 
 class WebSockets4WebServer : public WebSocketsServerCore {
   public:
-    WebSockets4WebServer(const String & origin = "", const String & protocol = "arduino")
+    WebSockets4WebServer(const std::string & origin = "", const std::string & protocol = "arduino")
         : WebSocketsServerCore(origin, protocol) {
         begin();
     }
 
-    ESP8266WebServer::HookFunction hookForWebserver(const String & wsRootDir, WebSocketServerEvent event) {
+    ESP8266WebServer::HookFunction hookForWebserver(const std::string & wsRootDir, WebSocketServerEvent event) {
         onEvent(event);
 
-        return [&, wsRootDir](const String & method, const String & url, WiFiClient * tcpClient, ESP8266WebServer::ContentTypeFunction contentType) {
+        return [&, wsRootDir](const std::string & method, const std::string & url, WiFiClient * tcpClient, ESP8266WebServer::ContentTypeFunction contentType) {
             (void)contentType;
 
             if(!(method == "GET" && url.indexOf(wsRootDir) == 0)) {
@@ -55,7 +57,7 @@ class WebSockets4WebServer : public WebSocketsServerCore {
 
             if(client) {
                 // give "GET <url>"
-                String headerLine;
+                std::string headerLine;
                 headerLine.reserve(url.length() + 5);
                 headerLine = "GET ";
                 headerLine += url;

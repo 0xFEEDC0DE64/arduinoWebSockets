@@ -24,6 +24,8 @@
 
 #include "WebSockets.h"
 
+#include <string>
+
 #ifdef ESP8266
 #include <core_esp8266_features.h>
 #endif
@@ -535,15 +537,15 @@ void WebSockets::handleWebsocketPayloadCb(WSclient_t * client, bool ok, uint8_t 
 
 /**
  * generate the key for Sec-WebSocket-Accept
- * @param clientKey String
- * @return String Accept Key
+ * @param clientKey std::string
+ * @return std::string Accept Key
  */
-String WebSockets::acceptKey(String & clientKey) {
+std::string WebSockets::acceptKey(std::string & clientKey) {
     uint8_t sha1HashBin[20] = { 0 };
 #ifdef ESP8266
     sha1(clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", &sha1HashBin[0]);
 #elif defined(ESP32)
-    String data = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    std::string data = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
     esp_sha(SHA1, (unsigned char *)data.c_str(), data.length(), &sha1HashBin[0]);
 #else
     clientKey += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -553,7 +555,7 @@ String WebSockets::acceptKey(String & clientKey) {
     SHA1Final(&sha1HashBin[0], &ctx);
 #endif
 
-    String key = base64_encode(sha1HashBin, 20);
+    std::string key = base64_encode(sha1HashBin, 20);
     key.trim();
 
     return key;
@@ -563,9 +565,9 @@ String WebSockets::acceptKey(String & clientKey) {
  * base64_encode
  * @param data uint8_t *
  * @param length size_t
- * @return base64 encoded String
+ * @return base64 encoded std::string
  */
-String WebSockets::base64_encode(uint8_t * data, size_t length) {
+std::string WebSockets::base64_encode(uint8_t * data, size_t length) {
     size_t size   = ((length * 1.6f) + 1);
     char * buffer = (char *)malloc(size);
     if(buffer) {
@@ -574,11 +576,11 @@ String WebSockets::base64_encode(uint8_t * data, size_t length) {
         int len = base64_encode_block((const char *)&data[0], length, &buffer[0], &_state);
         len     = base64_encode_blockend((buffer + len), &_state);
 
-        String base64 = String(buffer);
+        std::string base64 = std::string(buffer);
         free(buffer);
         return base64;
     }
-    return String("-FAIL-");
+    return std::string("-FAIL-");
 }
 
 /**

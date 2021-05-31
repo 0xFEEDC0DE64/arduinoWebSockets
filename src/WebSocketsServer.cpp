@@ -22,10 +22,13 @@
  *
  */
 
-#include "WebSockets.h"
 #include "WebSocketsServer.h"
 
-WebSocketsServerCore::WebSocketsServerCore(const String & origin, const String & protocol) {
+#include <string>
+
+#include "WebSockets.h"
+
+WebSocketsServerCore::WebSocketsServerCore(const std::string & origin, const std::string & protocol) {
     _origin                 = origin;
     _protocol               = protocol;
     _runnning               = false;
@@ -40,7 +43,7 @@ WebSocketsServerCore::WebSocketsServerCore(const String & origin, const String &
     _mandatoryHttpHeaderCount = 0;
 }
 
-WebSocketsServer::WebSocketsServer(uint16_t port, const String & origin, const String & protocol)
+WebSocketsServer::WebSocketsServer(uint16_t port, const std::string & origin, const std::string & protocol)
     : WebSocketsServerCore(origin, protocol) {
     _port = port;
 
@@ -130,7 +133,7 @@ void WebSocketsServerCore::onValidateHttpHeader(
         delete[] _mandatoryHttpHeaders;
 
     _mandatoryHttpHeaderCount = mandatoryHttpHeaderCount;
-    _mandatoryHttpHeaders     = new String[_mandatoryHttpHeaderCount];
+    _mandatoryHttpHeaders     = new std::string[_mandatoryHttpHeaderCount];
 
     for(size_t i = 0; i < _mandatoryHttpHeaderCount; i++) {
         _mandatoryHttpHeaders[i] = mandatoryHttpHeaders[i];
@@ -171,7 +174,7 @@ bool WebSocketsServerCore::sendTXT(uint8_t num, const char * payload, size_t len
     return sendTXT(num, (uint8_t *)payload, length);
 }
 
-bool WebSocketsServerCore::sendTXT(uint8_t num, String & payload) {
+bool WebSocketsServerCore::sendTXT(uint8_t num, std::string & payload) {
     return sendTXT(num, (uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -213,7 +216,7 @@ bool WebSocketsServerCore::broadcastTXT(const char * payload, size_t length) {
     return broadcastTXT((uint8_t *)payload, length);
 }
 
-bool WebSocketsServerCore::broadcastTXT(String & payload) {
+bool WebSocketsServerCore::broadcastTXT(std::string & payload) {
     return broadcastTXT((uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -284,7 +287,7 @@ bool WebSocketsServerCore::sendPing(uint8_t num, uint8_t * payload, size_t lengt
     return false;
 }
 
-bool WebSocketsServerCore::sendPing(uint8_t num, String & payload) {
+bool WebSocketsServerCore::sendPing(uint8_t num, std::string & payload) {
     return sendPing(num, (uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -309,7 +312,7 @@ bool WebSocketsServerCore::broadcastPing(uint8_t * payload, size_t length) {
     return ret;
 }
 
-bool WebSocketsServerCore::broadcastPing(String & payload) {
+bool WebSocketsServerCore::broadcastPing(std::string & payload) {
     return broadcastPing((uint8_t *)payload.c_str(), payload.length());
 }
 
@@ -347,7 +350,7 @@ void WebSocketsServerCore::disconnect(uint8_t num) {
  */
 void WebSocketsServerCore::setAuthorization(const char * user, const char * password) {
     if(user && password) {
-        String auth = user;
+        std::string auth = user;
         auth += ":";
         auth += password;
         _base64Authorization = base64_encode((uint8_t *)auth.c_str(), auth.length());
@@ -662,7 +665,7 @@ void WebSocketsServerCore::handleClientData(void) {
                 //DEBUG_WEBSOCKETS("[WS-Server][%d][handleClientData] len: %d\n", client->num, len);
                 switch(client->status) {
                     case WSC_HEADER: {
-                        String headerLine = client->tcp->readStringUntil('\n');
+                        std::string headerLine = client->tcp->readStringUntil('\n');
                         handleHeader(client, &headerLine);
                     } break;
                     case WSC_CONNECTED:
@@ -685,9 +688,9 @@ void WebSocketsServerCore::handleClientData(void) {
 
 /*
  * returns an indicator whether the given named header exists in the configured _mandatoryHttpHeaders collection
- * @param headerName String ///< the name of the header being checked
+ * @param headerName std::string ///< the name of the header being checked
  */
-bool WebSocketsServerCore::hasMandatoryHeader(String headerName) {
+bool WebSocketsServerCore::hasMandatoryHeader(std::string headerName) {
     for(size_t i = 0; i < _mandatoryHttpHeaderCount; i++) {
         if(_mandatoryHttpHeaders[i].equalsIgnoreCase(headerName))
             return true;
@@ -698,9 +701,9 @@ bool WebSocketsServerCore::hasMandatoryHeader(String headerName) {
 /**
  * handles http header reading for WebSocket upgrade
  * @param client WSclient_t * ///< pointer to the client struct
- * @param headerLine String ///< the header being read / processed
+ * @param headerLine std::string ///< the header being read / processed
  */
-void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine) {
+void WebSocketsServerCore::handleHeader(WSclient_t * client, std::string * headerLine) {
     static const char * NEW_LINE = "\r\n";
 
     headerLine->trim();    // remove \r
@@ -718,8 +721,8 @@ void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine
             client->cMandatoryHeadersCount = 0;
 
         } else if(headerLine->indexOf(':') >= 0) {
-            String headerName  = headerLine->substring(0, headerLine->indexOf(':'));
-            String headerValue = headerLine->substring(headerLine->indexOf(':') + 1);
+            std::string headerName  = headerLine->substring(0, headerLine->indexOf(':'));
+            std::string headerValue = headerLine->substring(headerLine->indexOf(':') + 1);
 
             // remove space in the beginning (RFC2616)
             if(headerValue[0] == ' ') {
@@ -795,7 +798,7 @@ void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine
         }
 
         if(_base64Authorization.length() > 0) {
-            String auth = WEBSOCKETS_STRING("Basic ");
+            std::string auth = WEBSOCKETS_STRING("Basic ");
             auth += _base64Authorization;
             if(auth != client->base64Authorization) {
                 DEBUG_WEBSOCKETS("[WS-Server][%d][handleHeader] HTTP Authorization failed!\n", client->num);
@@ -808,13 +811,13 @@ void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine
             DEBUG_WEBSOCKETS("[WS-Server][%d][handleHeader] Websocket connection incoming.\n", client->num);
 
             // generate Sec-WebSocket-Accept key
-            String sKey = acceptKey(client->cKey);
+            std::string sKey = acceptKey(client->cKey);
 
             DEBUG_WEBSOCKETS("[WS-Server][%d][handleHeader]  - sKey: %s\n", client->num, sKey.c_str());
 
             client->status = WSC_CONNECTED;
 
-            String handshake = WEBSOCKETS_STRING(
+            std::string handshake = WEBSOCKETS_STRING(
                 "HTTP/1.1 101 Switching Protocols\r\n"
                 "Server: arduino-WebSocketsServer\r\n"
                 "Upgrade: websocket\r\n"
